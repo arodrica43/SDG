@@ -14,8 +14,6 @@ module SDG.Basics where
   module _ {k : CommRing {ℓ}} where
     k-as-type : Type ℓ
     k-as-type = fst k
-    
-   -- _·ₖ_ = CommRingStr._·_
 
     0r =  CommRingStr.0r (snd k)
     1r =  CommRingStr.1r (snd k)
