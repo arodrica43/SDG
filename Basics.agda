@@ -42,7 +42,7 @@ module SDG.Basics where
     x ^ suc n =  (x ^ n) * x
 
     D : ℕ → Type ℓ
-    D n = Σ k-as-type λ x → x ^ n ≡ 0r
+    D n = Σ k-as-type λ x → x ^ (suc n) ≡ 0r
 
     D∞ = Σ ℕ λ n → D n
 
@@ -62,8 +62,11 @@ module SDG.Basics where
     exp-var-vec : {n : ℕ} → FinVec ℕ n →  FinVec (fst (freeAlgebra {ℓ} {k} n)) n
     exp-var-vec r = λ i → exp-var i (r i)
 
+    vec-suc : {n : ℕ} → FinVec ℕ n → FinVec ℕ n -- From a vector (i₁,...,iₙ), returns (i₁ + 1,...,iₙ + 1)
+    vec-suc v = λ i → suc (v i)
+
     FundWeilAlgebra : {m : ℕ} (n : ℕ)(r : FinVec ℕ n) → k-Alg
-    FundWeilAlgebra n r = makeFPAlgebra {m = n} n (exp-var-vec r)
+    FundWeilAlgebra n r = makeFPAlgebra {m = n} n (exp-var-vec (vec-suc r))
 
     FreeWeilAlgebra : {m : ℕ}(n : ℕ)(r : FinVec ℕ n)(v : FinVec (fst (FundWeilAlgebra {n} n r)) m) → k-Alg
     FreeWeilAlgebra n r v = FundWeilAlgebra {n} n r / generatedIdeal (FundWeilAlgebra {n} n r) v
@@ -88,5 +91,5 @@ module SDG.Basics where
     postulate
       Kock-Lawvere : (W : FPAlg) → isIso (canonical {getCommAlg W})
 
-    coefficients : {W : k-Alg} → (Spec W → fst k-as-algebra) → fst W
-    coefficients f = {!   !}
+    --coefficients : {W : k-Alg} → (Spec W → fst k-as-algebra) → fst W
+    --coefficients f = {!   !}
