@@ -14,7 +14,9 @@ module SDG.Basics where
   open import Cubical.Algebra.CommAlgebra.FPAlgebra
   open import Cubical.Algebra.CommAlgebra.Instances.FreeCommAlgebra
   open import Cubical.Data.Nat
+  open import Cubical.Data.Unit
   open import Cubical.Algebra.Ring.BigOps
+  open import Cubical.Algebra.RingSolver.Reflection
 
   private
     variable
@@ -37,6 +39,10 @@ module SDG.Basics where
     _*_ : k-as-type → k-as-type → k-as-type
     x * y = (snd k CommRingStr.· x) y
     
+    k-action : {W : k-Alg} → k-as-type → (fst W) → (fst W)
+    k-action {W = W} r a = (snd W CommAlgebraStr.⋆ r) a
+
+
     _^_ : k-as-type → ℕ → k-as-type
     x ^ zero = 1r
     x ^ suc n =  (x ^ n) * x
@@ -73,6 +79,9 @@ module SDG.Basics where
   
     k[ε] = FundWeilAlgebra {1} 1 λ x → 2
 
+    k[ε]-zero : fst k[ε]
+    k[ε]-zero = CommAlgebraStr.0a (snd k[ε])
+
     FPAlg : Type _
     FPAlg = Σ (Type ℓ) λ X → Σ ℕ (λ m → Σ ℕ (λ n → Σ (FinVec (fst (freeAlgebra {ℓ} {k} n)) m) λ v → X ≡ (fst (makeFPAlgebra {ℓ} n v))))
     
@@ -82,6 +91,12 @@ module SDG.Basics where
     Spec : k-Alg → Type ℓ
     Spec W = CommAlgebraHom W k-as-algebra
 
+    --base-pt : {W : k-Alg} → Spec W
+    --base-pt {W = W} = 
+      
+    --trivial-morph : {W : k-Alg} → fst k → fst k-as-algebra
+    --trivial-morph {W = W} w = (snd k-as-algebra CommAlgebraStr.⋆ w) (CommAlgebraStr.1a (snd k-as-algebra))
+    
     evalAt : {W : k-Alg}(d : Spec W)(w : fst W) → fst k-as-algebra
     evalAt d w = d .fst w -- is this correct?
 
@@ -93,3 +108,26 @@ module SDG.Basics where
 
     --coefficients : {W : k-Alg} → (Spec W → fst k-as-algebra) → fst W
     --coefficients f = {!   !}
+
+    --Disk = Spec k[ε]
+    Disk = D 1
+    -- center : Unit → Disk
+    -- center ⋆ = 
+    --   makeCommAlgebraHom {M = k[ε]} {N = k-as-algebra} 
+    --   (λ x → (k Construction.⋆ {! 0r !}) (Construction.const {!   !})) 
+    --   {!   !} {!   !} {!   !} {!   !}
+
+    TangentSpace : Type ℓ → Type ℓ
+    TangentSpace X = Disk → X
+    
+    0D : Disk
+    0D = 0r , solve k -- solving simplification with RingSolver
+
+    Tangent-space-of_at_ : (X : Type ℓ) → (x : X) → Type ℓ
+    Tangent-space-of X at x = Σ (Disk → X) (λ f → f 0D ≡ x) -- Tangent vectors are terms of this type
+
+    VecField : (X : Type ℓ) → Type ℓ
+    VecField X = (x : X) → Tangent-space-of X at x
+
+    first-DE : {X : Type ℓ} → VecField X → Type ℓ
+    first-DE {X = X} F = (x : X) → F x ≡ ((λ d → x) , λ i → x)
