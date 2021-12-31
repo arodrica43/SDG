@@ -104,7 +104,8 @@ module SDG.Basics where
     canonical {W = W} w = λ d → evalAt {W} d w
 
     postulate
-      Kock-Lawvere : (W : FPAlg) → isIso (canonical {getCommAlg W})
+      public 
+        Kock-Lawvere : (W : FPAlg) → isIso (canonical {getCommAlg W})
 
     --coefficients : {W : k-Alg} → (Spec W → fst k-as-algebra) → fst W
     --coefficients f = {!   !}
