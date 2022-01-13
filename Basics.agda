@@ -5,7 +5,7 @@ module SDG.Basics where
   open import Cubical.Foundations.Everything
   open import Cubical.Data.FinData
   
-  open import Cubical.Algebra.Ring        using ()
+  open import Cubical.Algebra.Ring
   open import Cubical.Algebra.CommRing
   open import Cubical.Algebra.CommAlgebra
   open import Cubical.Algebra.CommAlgebra.QuotientAlgebra
