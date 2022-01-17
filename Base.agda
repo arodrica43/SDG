@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical #-}
+{-# OPTIONS --cubical --safe #-}
 
 module SDG.Base where
 
@@ -15,7 +15,7 @@ module SDG.Base where
     variable
       ℓ : Level
 
-  module _ {k : CommRing ℓ} where
+  module Foundations {k : CommRing ℓ} where
     
     k-as-algebra : CommAlgebra k ℓ
     k-as-algebra = freeAlgebra 0
@@ -54,11 +54,16 @@ module SDG.Base where
     vec-suc : {n : ℕ} → FinVec ℕ n → FinVec ℕ n -- From a vector (i₁,...,iₙ), returns (i₁ + 1,...,iₙ + 1)
     vec-suc v = λ i → suc (v i)
 
-    FPAlg : Type _
-    FPAlg = Σ (Type ℓ) λ X → Σ ℕ (λ m → Σ ℕ (λ n → Σ (FinVec (fst (freeAlgebra {ℓ} {k} n)) m) λ v → X ≡ (fst (makeFPAlgebra {ℓ} n v))))
+    --FPAlg : Type _
+    --FPAlg = Σ (Type ℓ) λ X → Σ ℕ (λ m → Σ ℕ (λ n → Σ (FinVec (fst (freeAlgebra {ℓ} {k} n)) m) λ v → X ≡ (fst (makeFPAlgebra {ℓ} n v))))
     
+    FPAlg : Type (ℓ-suc ℓ)
+    FPAlg = Σ (CommAlgebra k ℓ) λ A → isFPAlgebra A
+
     getCommAlg : FPAlg → k-Alg
-    getCommAlg W = makeFPAlgebra {ℓ} (fst (snd (snd W))) (fst (snd (snd (snd W))))
+    getCommAlg A = fst A --makeFPAlgebra {ℓ} (fst (snd (snd W))) (fst (snd (snd (snd W))))
+
+    
 
     Spec : k-Alg → Type ℓ
     Spec W = CommAlgebraHom W k-as-algebra
@@ -68,3 +73,4 @@ module SDG.Base where
 
     canonical : {W : k-Alg}(w : fst W) → (Spec W → fst k-as-algebra)
     canonical {W = W} w = λ d → evalAt {W} d w
+ 
