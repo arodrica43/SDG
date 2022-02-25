@@ -6,6 +6,7 @@ module SDG.Base where
   open import Cubical.Data.FinData
   open import Cubical.Algebra.Ring
   open import Cubical.Algebra.CommRing
+  open import Cubical.Algebra.Algebra
   open import Cubical.Algebra.CommAlgebra
   open import Cubical.Algebra.CommAlgebra.FPAlgebra
   open import Cubical.Algebra.CommAlgebra.Instances.FreeCommAlgebra
@@ -60,10 +61,8 @@ module SDG.Base where
     FPAlg : Type (ℓ-suc ℓ)
     FPAlg = Σ (CommAlgebra k ℓ) λ A → isFPAlgebra A
 
-    getCommAlg : FPAlg → k-Alg
-    getCommAlg A = fst A --makeFPAlgebra {ℓ} (fst (snd (snd W))) (fst (snd (snd (snd W))))
-
-    
+    FPAlg→CommAlgebra : FPAlg → k-Alg
+    FPAlg→CommAlgebra A = fst A --makeFPAlgebra {ℓ} (fst (snd (snd W))) (fst (snd (snd (snd W))))
 
     Spec : k-Alg → Type ℓ
     Spec W = CommAlgebraHom W k-as-algebra
@@ -71,6 +70,6 @@ module SDG.Base where
     evalAt : {W : k-Alg}(d : Spec W)(w : fst W) → fst k-as-algebra
     evalAt d w = d .fst w -- is this correct?
 
-    canonical : {W : k-Alg}(w : fst W) → (Spec W → fst k-as-algebra)
+    canonical : {W : k-Alg} → (w : fst W) → (Spec W → fst k-as-algebra)
     canonical {W = W} w = λ d → evalAt {W} d w
  

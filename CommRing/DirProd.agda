@@ -21,6 +21,7 @@ module SDG.CommRing.DirProd where
         private
             asRingR = CommRing→Ring R
             asRingS = CommRing→Ring S
+            
 
         asRing-CRingR×S : Ring ℓ
         asRing-CRingR×S = ((fst R) , snd asRingR) × ((fst S) , (snd asRingS)) 
