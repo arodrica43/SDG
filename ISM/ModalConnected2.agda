@@ -54,7 +54,6 @@ module _ {ℓ : Level}{A B S : Type ℓ}{f : A → B} where
         ◯-=-isModal = Modality.◯-=-isModal ◯-asModality
         ◯-map-β = Modality.◯-map-β ◯-asModality
         ◯-map = Modality.◯-map ◯-asModality
-        
 
     private
         ◯f = Modality.◯-map ◯-asModality f

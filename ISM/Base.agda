@@ -16,9 +16,10 @@ module SDG.ISM.Base where
   open import SDG.Base
   open import SDG.Nilpotent
   open import SDG.ISM.ModalConnected2
+  open import Cubical.Functions.Embedding
 
 
-  module _ {ℓ : Level} {k : CommRing ℓ} where
+  module BaseFoundations {ℓ : Level} {k : CommRing ℓ} where
     open Foundations
     private
       Dsk = D∞ {ℓ} {k}
@@ -33,6 +34,7 @@ module SDG.ISM.Base where
     ISM = NullModality Dsk
     η = Modality.η ISM
     ℑ = Modality.◯ ISM
+    ℑ-rec = Modality.◯-rec ISM
     ℑ-Type = Modality.◯-Types ISM
 
     -- The maps from Dsk to modal types are exacly the constant maps
@@ -104,9 +106,65 @@ module SDG.ISM.Base where
     thm2 : Iso (ℑ Dsk) (ℑ ∗)
     thm2 = ◯-connectedTruncIso thm1  
 
+    -- Main theorem ---
     thm3 : Iso (ℑ Dsk) ∗
     thm3 = compIso thm2 (invIso (∗-iso-ℑ∗))  
+    -------------------
+
+    thm4 : isContr ∗
+    thm4 = tt* , (λ y i → tt*)
+    thm4/1 : isContr (ℑ ∗)
+    thm4/1 = (Iso.fun ∗-iso-ℑ∗ tt*) , (Iso.rightInv ∗-iso-ℑ∗)
+    thm4/2 : ◯-isConnType {ℓ} {∗} {∗} {Dsk} ∗
+    thm4/2 = thm4/1
+
+    thm5/1 : isContr (ℑ Dsk)
+    thm5/1 = (Iso.fun (invIso thm3) tt*) , Iso.leftInv thm3
+    thm5 : ◯-isConnType {ℓ} {∗} {∗} {Dsk} Dsk
+    thm5 = thm5/1
+
+    private
+      ℑ-isConn = ◯-isConnType {ℓ} {∗} {∗} {Dsk}
+
+    ℑ-isConnectedRetract : {A : Type ℓ} {B : Type ℓ}
+      (f : A → B) (g : B → A)
+      (h : (x : A) → g (f x) ≡ x)
+      → ℑ-isConn B → ℑ-isConn A
+    ℑ-isConnectedRetract f g h = isContrRetract 
+                                  (Modality.◯-map ISM f) 
+                                  (Modality.◯-map ISM g) 
+                                  (Modality.◯-elim ISM 
+                                    (λ _ → Modality.◯-=-isModal ISM _ _) 
+                                    λ x → cong η (h x))
+
+    thm6 : {A : Type ℓ}
+      (f : A → Dsk) (g : Dsk → A)
+      (h : (x : A) → g (f x) ≡ x)
+       → ℑ-isConn A
+    thm6 f g h = ℑ-isConnectedRetract f g h thm5
+
+    thm7 : {A : Type ℓ}
+      (f : A → Dsk) (g : Dsk → A)
+      (h : (x : A) → g (f x) ≡ x)
+       → Iso (ℑ A) ∗
+    thm7 {A} f g h = iso (λ _ → tt*) 
+                         (λ x → fst (thm6 f g h)) 
+                         (λ b i → tt*) 
+                         λ a i → (snd (thm6 f g h)) a i
     
+    -- isConnectedRetract (suc n) f g h =
+    --   isContrRetract
+    --     (Trunc.map f)
+    --     (Trunc.map g)
+    --     (Trunc.elim
+    --       (λ _ → isOfHLevelPath (suc n) (isOfHLevelTrunc (suc n)) _ _)
+    --       (λ a → cong ∣_∣ (h a)))
+
+
+    -- cor1 : {X : Type ℓ}(f : X → Dsk) → isEmbedding f → isEmbedding (Modality.◯-map ISM f)
+    -- cor1 {X} f iE = λ w x → record { 
+    --                   equiv-proof = λ y → ((λ i → {!  !}) , {!   !}) , 
+    --                                       λ y₁ i → {!   !} , {!   !} }
     private
       ℑ-isConnMap = ◯-isConnMap {ℓ} {Dsk} {∗} {Dsk} {λ _ → tt*} 
     -- ℑDsk-iso2/3 : ((P : ∗ → Modality.◯-Types ISM)
@@ -187,4 +245,4 @@ module SDG.ISM.Base where
     ∗→ℑDsk-isModal = Modality.→-isModal ISM (Modality.◯-isModal ISM)  
     ℑ∗-iso3 : (s : Dsk) → Iso (∗ → ℑ Dsk) (ℑ (∗ → ℑ Dsk))
     ℑ∗-iso3 = λ s → Modality.isModalToIso ISM ∗→ℑDsk-isModal
- 
+  

@@ -66,7 +66,7 @@ module SDG.Nilpotent where
         -- ϕ W = λ x → Iso.fun (snd (snd W)) x
         -- spec-prept : (W : FPNilpAlg2) → fst (fst (fst W)) → fst k-as-CAlg -- (k-as-CAlg ⊗ (NilpAlg→CommAlgebra (fst (snd W))))
         -- spec-prept W = λ x → fst (ϕ W x) 
-
+        -- Experimental ::
         ϕ : (W : FPNilpAlg3) → CommAlgebraHom (FPAlg→CommAlgebra (fst W)) (k-as-CAlg ⊗ NilpAlg→CommAlgebra (fst (snd W)))
         ϕ W = fst (snd (snd W))
         
