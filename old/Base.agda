@@ -11,6 +11,7 @@ module SDG.Base where
   open import Cubical.Algebra.CommAlgebra.FPAlgebra
   open import Cubical.Algebra.CommAlgebra.Instances.FreeCommAlgebra
   open import Cubical.Data.Nat
+  open import Cubical.Algebra.Ring.BigOps
 
   private
     variable
@@ -49,6 +50,15 @@ module SDG.Base where
     monomial : {n : ℕ} → fst k → Fin n → ℕ → fst (freeAlgebra {ℓ} {k} n)
     monomial a i n = (constant a) Construction.· (exp-var i n)
 
+    open Sum (CommRing→Ring k)
+    polynomialAt : {n : ℕ} → FinVec (fst k) n → fst k → fst k
+    polynomialAt v a = ∑ (λ i → ((snd k) CommRingStr.· (v i)) (a ^ toℕ i))
+
+    series_TruncAt : (n : ℕ) → (ℕ → fst k) →  fst k → fst k
+    series n TruncAt a x = ∑ {n} serie
+      where
+        serie : (n : Fin _) → fst k
+        serie n = ((snd k) CommRingStr.+ (a (toℕ n))) (x ^ toℕ n)
     exp-var-vec : {n : ℕ} → FinVec ℕ n →  FinVec (fst (freeAlgebra {ℓ} {k} n)) n
     exp-var-vec r = λ i → exp-var i (r i)
 
@@ -72,4 +82,4 @@ module SDG.Base where
 
     canonical : {W : k-Alg} → (w : fst W) → (Spec W → fst k-as-algebra)
     canonical {W = W} w = λ d → evalAt {W} d w
- 
+  

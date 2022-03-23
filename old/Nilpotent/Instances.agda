@@ -4,7 +4,9 @@ module SDG.Nilpotent.Instances where
   open import Cubical.Foundations.Everything
   open import Cubical.Data.FinData
   open import Cubical.Data.Nat
+  open import Cubical.Algebra.Ring
   open import Cubical.Algebra.CommRing
+  open import Cubical.Algebra.CommAlgebra.Instances.FreeCommAlgebra
   open import Cubical.Algebra.Algebra
   open import Cubical.Algebra.CommAlgebra -- Some of this imports should be moved to Base
   open import Cubical.HITs.SetQuotients renaming (_/_ to _//_)
@@ -14,6 +16,7 @@ module SDG.Nilpotent.Instances where
   open import Cubical.Algebra.CommAlgebra.FPAlgebra
   open import Cubical.Data.Sigma
   open import SDG.Base 
+  open import SDG.Nilpotent
   open Foundations renaming (_^_ to pow)
   variable
      ℓ : Level
@@ -50,6 +53,15 @@ module SDG.Nilpotent.Instances where
                   (y : fst (W/J n r v)) → ∃[ x ∈ fst (W n r) ] π x ≡ y --hasSection (π {m} {n} {r} {v})
     π-hasSect/1 = []surjective 
 
+    open Theory 
+    open RingTheory
+    open Foundations
+    FPNA : Type (ℓ-suc ℓ)
+    FPNA = Σ (FPAlg {ℓ} {k}) λ A → Σ NilpAlg λ N → Iso (fst (FPAlg→CommAlgebra A)) ((fst k-as-alg) × fst (NilpAlg→CommAlgebra N))
+
+    W-as-FPNA : {! FPNA  !}
+    W-as-FPNA = {!   !}
+    
     
 
     --π-hasSect/2 : {m : ℕ}{n : ℕ}{r : FinVec ℕ n}{v : FinVec (fst (W n r)) m} →

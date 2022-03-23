@@ -49,8 +49,8 @@ module SDG.ISM.Base where
     -- so the image of every map (Dsk → ℑ A) is contractible in ℑ A,
     -- so the image of η-Dsk : Dsk → ℑ Dsk  is contractible in ℑ Dsk,
     -- so ∀ (x y : ℑ Dsk) η (x) ≡ η (y).
-    pre-η-has-contr-img : {S : Type ℓ} → (f : S → Null S S) → (x y : S) → f x ≡ f y 
-    pre-η-has-contr-img {S} f x y i = ((sym (spoke f x)) ∙ spoke f y) i
+    pre-η-has-contr-img : {S A : Type ℓ} → (f : S → Null S A) → (x y : S) → f x ≡ f y 
+    pre-η-has-contr-img f x y i = ((sym (spoke f x)) ∙ spoke f y) i
     η-has-contr-img : (x y : Dsk) → η x ≡ η y 
     η-has-contr-img x y i = pre-η-has-contr-img η x y i
       
