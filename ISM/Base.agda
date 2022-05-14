@@ -6,7 +6,8 @@ module SDG.ISM.Base where
   open import Cubical.Data.Nat
   open import Cubical.Data.FinData
   open import Cubical.Algebra.CommRing
-  open import Cubical.Algebra.RingSolver.Reflection
+  open import Cubical.Algebra.CommAlgebra
+  open import Cubical.Algebra.CommAlgebra.FPAlgebra
   open import Cubical.Modalities.Modality
   open import Cubical.Foundations.Equiv.PathSplit
   
@@ -37,7 +38,7 @@ module SDG.ISM.Base where
       ∗ = Unit*
 
     mod = NullModality X
-    open Modality mod
+    open Modality mod public
     open ModalConnected mod
 
     ◯A≃X→◯A : {A : Type ℓ} → Iso (◯ A) (X → ◯ A)
@@ -179,7 +180,6 @@ module SDG.ISM.Base where
   module ℑProperties (ℝ@(R , str) : CommRing ℓ) where
 
     open Disk ℝ
-    open Monad ℝ
     open Foundations ℝ
     variable
         n : ℕ
@@ -205,13 +205,53 @@ module SDG.ISM.Base where
         ηinfDispl≡ηEvalAt0 : (p : FinVec R n)(a : D) → η (infDispl p a) ≡ η (p at 0r)
         ηinfDispl≡ηEvalAt0 p a = (ηinfDisplConnImg p a 0D) ∙ cong η refl
 
-  module NullDiskOfOrder2 (ℝ@(R , str) : CommRing ℓ) where
+  module NullDisk2 (ℝ@(R , str) : CommRing ℓ) where
     
     open Disk ℝ
     private
-      D = DskOfOrder 2
+      D = bigDskOfOrder∞
+      D2 = DskOfOrder 1
       ι : D → R
-      ι = fst
+      ι = fst 
+      ∗ = Unit*
     open NullProperties D
 
+    ℑkillSpecOfDualNumbers-step1 : Iso {ℓ} {ℓ} (Modality.◯ mod D2) ∗
+    ℑkillSpecOfDualNumbers-step1 = RetrNullifierReflectsToUnitIso (incl 1) (retr 1) isRetrRetr
+
+  module ISMExperimental (ℝ@(R , str) : CommRing ℓ)(A : CommAlgebra ℝ ℓ) where
     
+    open Foundations ℝ renaming (A to R[⊥])
+    open InfExperimental ℝ -- n-disk → ∞-disk
+    open NullProperties (infDskOfOrder∞ A) -- Nullification at the ∞-disk
+
+    private
+      ∗ = Unit*
+
+    -- open prova 3
+    -- ℑKillDisksOfAnyOrder : (n : ℕ) → Iso {ℓ} {ℓ} (◯ (infDskOfOrder A k)) ∗
+    -- ℑKillDisksOfAnyOrder n = RetrNullifierReflectsToUnitIso (incl A k) (retr A k) (isRetrRetr A)
+
+    -- Final Theorem 1 :: Nullification at infDiskOfOrder∞ nullifies all infDsisksOfOrder n
+    ℑKillDisksOfAnyOrder : (n : ℕ) → Iso {ℓ} {ℓ} (◯ (infDskOfOrder A n)) ∗
+    ℑKillDisksOfAnyOrder n = RetrNullifierReflectsToUnitIso (incl A n) (retr A n) (isRetrRetrG n A)
+
+    W : (n : ℕ) → CommAlgebra ℝ ℓ
+    W n = FPAlgebra {ℓ} {ℝ} {1} 1 (var-power n)
+
+    Spec : (X : CommAlgebra ℝ ℓ) → Type ℓ
+    Spec X = CommAlgebraHom X A 
+
+    -- Final Theorem 2 :: ℑ Kills Fundamental FPNAs
+    ℑKill1DFundFPNAs : (n : ℕ) → Iso (◯ (Spec (W n))) ∗
+    ℑKill1DFundFPNAs n = compIso (ℑhelperIso n) (ℑKillDisksOfAnyOrder n)
+      where
+        -- Helper Lemma :: ℑ preserves FPHomIso, via equivalences
+        ℑhelperIso : (n : ℕ) → Iso (◯ (Spec (W n)))  (◯ (infDskOfOrder A n))
+        ℑhelperIso n = equivToIso (◯-map (fst (isoToEquiv (FPHomIso 1 (var-power n)))) , 
+                                        (◯-preservesEquiv (fst (isoToEquiv (FPHomIso 1 (var-power n)))) 
+                                                            (snd (isoToEquiv (FPHomIso 1 (var-power n))))))
+
+
+    
+ 
