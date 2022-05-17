@@ -59,9 +59,15 @@ module SDG.Infinitesimal.Base where
             → IsCommAlgebraHom (A .snd) (g ∘ f) (C .snd)
         compIsCommAlgebraHom = compIsAlgebraHom
         iPAH = isPropIsCommAlgebraHom {ℓ} {ℝ} {ℓ} {ℓ} {X} {A}
+
+    fcanMap : (n : ℕ) → ⟨ W n ⟩ → (CommAlgebraHom (W n) A → ⟨ A ⟩ )
+    fcanMap n p d = fst d p
     
-    canMap : {X : CommAlgebra ℝ ℓ} → fst X → (Spec X → ⟨ A ⟩)
-    canMap x d = fst d x
+    canMap : (n : ℕ) → ⟨ A[ξ] ⟩ → (CommAlgebraHom (W n) A → ⟨ A ⟩ )
+    canMap n p d = fst d ((fst (modRelations 1 (var-power n))) p)
+
+    canMap1 : ⟨ A[ξ] ⟩ → (CommAlgebraHom (W 1) A → ⟨ A ⟩ )
+    canMap1 p d = fst d ((fst (modRelations 1 (var-power 1))) p)
 
   module Types (ℝ@(R , str) : CommRing ℓ) where
 
@@ -90,7 +96,7 @@ module SDG.Infinitesimal.Base where
     open Spectrum ℝ
     open NilpotentInstances ℝ
     open Foundations ℝ
-    
+    open CommRingStr str
     DskOfOrder : (n : ℕ) → Type ℓ
     DskOfOrder n = Σ R (λ d → isNilpOfOrder d (suc n))
     DskOfOrderProp : (n : ℕ) → Type ℓ
@@ -169,3 +175,6 @@ module SDG.Infinitesimal.Base where
                   transport (λ i → zeroLocus {ℓ} {ℝ} {1} 1 (λ x → gen (suc k)) A) d         ≡⟨ transportRefl d ⟩ 
                   d                                                                         ∎
     ... | no ¬p = byAbsurdity (¬p refl)                             
+
+    δ : (k : ℕ) → CommAlgebraHom (W k) A[ξ]
+    δ k = Iso.inv (FPHomIso 1 (var-power k)) (0d A[ξ] k) 

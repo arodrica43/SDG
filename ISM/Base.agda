@@ -188,7 +188,7 @@ module SDG.ISM.Base where
       ι : D → R
       ι = fst 
     open NullProperties D
-
+    open CommRingStr str
     _at_ = polynomialAt
     infDispl : FinVec R n → D → R
     infDispl p d = p at (ι d)
@@ -236,8 +236,7 @@ module SDG.ISM.Base where
     ℑKillDisksOfAnyOrder : (n : ℕ) → Iso {ℓ} {ℓ} (◯ (infDskOfOrder A n)) ∗
     ℑKillDisksOfAnyOrder n = RetrNullifierReflectsToUnitIso (incl A n) (retr A n) (isRetrRetrG n A)
 
-    W : (n : ℕ) → CommAlgebra ℝ ℓ
-    W n = FPAlgebra {ℓ} {ℝ} {1} 1 (var-power n)
+   
 
     Spec : (X : CommAlgebra ℝ ℓ) → Type ℓ
     Spec X = CommAlgebraHom X A 

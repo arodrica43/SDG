@@ -19,7 +19,7 @@ module SDG.Base where
   module Foundations (ℝ@(R , str) : CommRing ℓ) where
 
     open Exponentiation ℝ public
-    open CommRingStr str public
+    open CommRingStr str 
     open RingTheory (CommRing→Ring ℝ)
     open Construction ℝ renaming (_·_ to _·A_ ; _+_ to _+A_)
 
@@ -75,7 +75,16 @@ module SDG.Base where
     embedℕinRing : ℕ → R
     embedℕinRing zero = 0r
     embedℕinRing (suc n) = (embedℕinRing n) + 1r
+
+    embedℕinAlg : ℕ → ⟨ A ⟩
+    embedℕinAlg zero = 0a
+    embedℕinAlg (suc n) = ((snd A) CommAlgebraStr.+ (embedℕinAlg n)) 1a
+
+    W : (n : ℕ) → CommAlgebra ℝ ℓ
+    W n = FPAlgebra {ℓ} {ℝ} {1} 1 (var-power n)
     
+    ε : (k : ℕ) → ⟨ W k ⟩
+    ε k = generator 1 (var-power k) zero
 
 
     
