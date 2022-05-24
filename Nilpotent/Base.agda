@@ -35,18 +35,18 @@ module SDG.Nilpotent.Base where
     nilpotency : R → Type ℓ
     nilpotency  x = Σ[ n ∈ ℕ ] (ℝ Exponentiation.^ x) n ≡ CommRingStr.0r str
     isNilpotent : R → Type ℓ
-    isNilpotent x = ∥ nilpotency x ∥
+    isNilpotent x = ∥ nilpotency x ∥₁
     isNilpOfOrder : R → ℕ → Type ℓ
     isNilpOfOrder x n = (ℝ Exponentiation.^ x) n ≡ CommRingStr.0r str
     isNilpOfOrderProp : R → ℕ → Type ℓ
-    isNilpOfOrderProp x n = ∥ isNilpOfOrder x n ∥
+    isNilpOfOrderProp x n = ∥ isNilpOfOrder x n ∥₁
 
     isNilpotentAlg : ⟨ A ⟩ → Type ℓ
     isNilpotentAlg x = ∃[ n ∈ ℕ ] x ^a n ≡ CommAlgebraStr.0a (snd A)
     isNilpOfOrderAlg : ⟨ A ⟩ → ℕ → Type ℓ
     isNilpOfOrderAlg x n = x ^a n ≡  CommAlgebraStr.0a (snd A)
     isNilpOfOrderPropAlg : ⟨ A ⟩ → ℕ → Type ℓ
-    isNilpOfOrderPropAlg x n = ∥ isNilpOfOrderAlg x n ∥
+    isNilpOfOrderPropAlg x n = ∥ isNilpOfOrderAlg x n ∥₁
     
     isNilpRing : Ring ℓ → Type ℓ
     isNilpRing A = ∃[ n ∈ ℕ ] (∀(v : FinVec (fst A) n) → Product.∏ A (λ i → v i) ≡ RingStr.0r (snd A))

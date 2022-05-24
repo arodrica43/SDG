@@ -43,8 +43,9 @@ module SDG.Base where
     ξ : {n : ℕ} → Fin n → fst (Polynomials {ℓ} {ℝ} n)
     ξ i = var i
     exp-var : {n : ℕ} → Fin n → ℕ → fst (Polynomials {ℓ} {ℝ} n)
-    exp-var i zero = 1a
-    exp-var i (suc n) = (ξ i) ·A (exp-var i n)
+    exp-var {n} i k = exp-num {Polynomials n} (ξ i) k --1a
+    --exp-var i (suc n) = (ξ i) ·A (exp-var i n)
+
     exp-var-vec : {n : ℕ} → FinVec ℕ n →  FinVec (fst (Polynomials {ℓ} {ℝ} n)) n
     exp-var-vec r = λ i → exp-var i (r i)
     constant : {n : ℕ} → R → fst (Polynomials {ℓ} {ℝ} n)
@@ -76,15 +77,20 @@ module SDG.Base where
     embedℕinRing zero = 0r
     embedℕinRing (suc n) = (embedℕinRing n) + 1r
 
-    embedℕinAlg : ℕ → ⟨ A ⟩
-    embedℕinAlg zero = 0a
-    embedℕinAlg (suc n) = ((snd A) CommAlgebraStr.+ (embedℕinAlg n)) 1a
+    embedℕinAlg : (A : CommAlgebra ℝ ℓ) → ℕ → ⟨ A ⟩
+    embedℕinAlg A zero = CommAlgebraStr.0a (snd A)
+    embedℕinAlg A (suc n) = ((snd A) CommAlgebraStr.+ (embedℕinAlg A n)) (CommAlgebraStr.1a (snd A))
 
     W : (n : ℕ) → CommAlgebra ℝ ℓ
     W n = FPAlgebra {ℓ} {ℝ} {1} 1 (var-power n)
     
-    ε : (k : ℕ) → ⟨ W k ⟩
-    ε k = generator 1 (var-power k) zero
+    epsi : (k : ℕ) → ⟨ W k ⟩
+    epsi k = generator 1 (var-power k) zero
+
+    eps : (k : ℕ) (i : Fin 1) → ⟨ W k ⟩
+    eps k i = generator 1 (var-power k) i
+
+    
 
 
     

@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe --inversion-max-depth=200 #-}
+{-# OPTIONS --cubical --safe #-}
 
 module SDG.Infinitesimal.Base where
 
@@ -23,8 +23,8 @@ module SDG.Infinitesimal.Base where
   open import Cubical.HITs.PropositionalTruncation
   open import Cubical.Foundations.Powerset renaming (_∈_ to _∈p_)
   open import Cubical.Data.Bool using (Bool; true; false; if_then_else_)
-  open import Cubical.Algebra.CommRingSolver.Utility
   open import Cubical.Relation.Nullary
+  open import Cubical.Algebra.CommRingSolver.Utility
   open import SDG.Base
   open import SDG.Nilpotent.Base
 
@@ -111,7 +111,7 @@ module SDG.Infinitesimal.Base where
     Dsk : Type ℓ
     Dsk = Spec R[ε]
     0D : DskOfOrder∞
-    0D = 0r , ∣ 1 , (0LeftAnnihilates 1r) ∣
+    0D = 0r , ∣ 1 , (0LeftAnnihilates 1r) ∣₁
     0d : (n : ℕ) → DskOfOrder n
     0d n = 0r , ((0r ^ suc n) ≡⟨ refl ⟩ (0r · (0r ^ n)) ≡⟨ 0LeftAnnihilates (0r ^ n) ⟩ 0r ∎)
     incl : (n : ℕ) → DskOfOrder n → bigDskOfOrder∞
@@ -136,19 +136,21 @@ module SDG.Infinitesimal.Base where
 
   
     infDskOfOrder : (A : CommAlgebra ℝ ℓ)(n : ℕ) → Type ℓ
-    infDskOfOrder A n = zeroLocus {m = 1} 1 (λ _ → gen (suc n)) A
+    infDskOfOrder A n = zeroLocus 1 (var-power n) A --zeroLocus {m = 1} 1 (λ _ → gen (suc n)) A
 
     infDskOfOrder∞ : (A : CommAlgebra ℝ ℓ) → Type ℓ
     infDskOfOrder∞ A = Σ[ n ∈  ℕ ] infDskOfOrder A n
 
     0d : (A : CommAlgebra ℝ ℓ)(n : ℕ) → infDskOfOrder A n
-    0d A n = buildInZeroLocus 1 (λ _ → gen (suc n)) (λ _ → 0a) λ i → 
-              evPoly A (gen (suc n)) (λ _ → 0a)                         ≡⟨ evPolyChar A (suc n) (λ _ → 0a) ⟩ 
+    0d A n = makeZeroLocusTerm 1 (var-power n) A (λ _ → 0a) λ i → 
+              evPoly A (gen (suc n)) (λ _ → 0a)             ≡⟨ evPolyChar A (suc n) (λ _ → 0a) ⟩ 
               exp-num {A} 0a (suc n)                                        ≡⟨ refl ⟩ 
               ((snd A) CommAlgebraStr.· 0a) (exp-num 0a n)                  ≡⟨ RingTheory.0LeftAnnihilates (CommRing→Ring (CommAlgebra→CommRing A)) (exp-num 0a n) ⟩ 
               0a                                                        ∎
+           
       where
         open CommAlgebraStr (snd A)
+
 
     incl : (A : CommAlgebra ℝ ℓ)(n : ℕ) → infDskOfOrder A n → infDskOfOrder∞ A
     incl A n d = n , d
@@ -174,7 +176,42 @@ module SDG.Infinitesimal.Base where
                                                                                                                 (isSetℕ k k p refl i)) ⟩ 
                   transport (λ i → zeroLocus {ℓ} {ℝ} {1} 1 (λ x → gen (suc k)) A) d         ≡⟨ transportRefl d ⟩ 
                   d                                                                         ∎
-    ... | no ¬p = byAbsurdity (¬p refl)                             
+    ... | no ¬p = byAbsurdity (¬p refl)     
 
+                
     δ : (k : ℕ) → CommAlgebraHom (W k) A[ξ]
     δ k = Iso.inv (FPHomIso 1 (var-power k)) (0d A[ξ] k) 
+  
+    evPoly2 : (n : ℕ) → (A : CommAlgebra ℝ ℓ) → ⟨ W n ⟩ → FinVec (infDskOfOrder A n) 1 → ⟨ A ⟩
+    evPoly2 n A P values = (fst (inducedHomFP 1 (var-power n) A (values zero))) P  -- fst (freeInducedHom A values) P
+    
+    recov : (n : ℕ) → (A : CommAlgebra ℝ ℓ) → infDskOfOrder A n → ⟨ A ⟩
+    recov n A d = evPoly2 n A (epsi n) (λ _ → d)
+
+    canonical : (n : ℕ)(A : CommAlgebra ℝ ℓ) → ⟨ W n ⟩ → (infDskOfOrder A n → ⟨ A ⟩)
+    canonical n A P d = evPoly2 n A P λ _ → d
+    
+    -- postulate
+    --   NKL : (n : ℕ)(A : CommAlgebra ℝ ℓ) → isIso (canonical n A)
+    -- invMAP : (n : ℕ)(A : CommAlgebra ℝ ℓ) → (infDskOfOrder A n → ⟨ A ⟩) → ⟨ W n ⟩
+    -- invMAP n A = fst (NKL n A)
+
+    -- coeff0 : (n : ℕ)(A : CommAlgebra ℝ ℓ) → ⟨ W n ⟩ → ⟨ A ⟩
+    -- coeff0 n A P = evPoly2 n A P (λ x → 0d A n)
+
+    
+    ε : (A : CommAlgebra ℝ ℓ)(n : ℕ) → infDskOfOrder (W n) n
+    ε A n = makeZeroLocusTerm 1 (var-power n) (W n) (eps n) (relationsHold 1 (λ x → gen (suc n))) --makeZeroLocusTerm 1 (λ _ → gen (suc n)) (eps n) (relationsHold 1 (λ x → gen (suc n)))
+
+    ε2 : (A : CommAlgebra ℝ ℓ)(n : ℕ) → infDskOfOrder (W n) (suc n)
+    ε2 A n = makeZeroLocusTerm 1 (λ _ → gen (suc (suc n))) (W n) (eps n) (λ i → evPoly (W n) (gen (suc (suc n))) (eps n) ≡⟨ refl ⟩ 
+                                                                                evPoly (W n) ((ξ zero) Construction.· (gen (suc n))) (eps n) ≡⟨ refl ⟩ 
+                                                                                ((snd (W n)) CommAlgebraStr.· (evPoly (W n) (ξ zero) (eps n))) (evPoly (W n) (gen (suc n)) (eps n)) ≡⟨ cong (λ a → ((snd (W n)) CommAlgebraStr.· evPoly (W n) (ξ zero) (eps n)) a) (relationsHold 1 (var-power n) zero) ⟩ 
+                                                                                ((snd (W n)) CommAlgebraStr.· evPoly (W n) (ξ zero) (eps n)) (CommAlgebraStr.0a (snd (W n))) ≡⟨ RingTheory.0RightAnnihilates (CommRing→Ring (CommAlgebra→CommRing (W n))) (evPoly (W n) (ξ zero) (eps n)) ⟩
+                                                                                CommAlgebraStr.0a (snd (W n)) ∎)
+    
+    retrieve : (n : ℕ) → (A : CommAlgebra ℝ ℓ) → ⟨ W (suc n) ⟩ → ⟨ W n ⟩
+    retrieve n A = λ P → evPoly2 (suc n) (W n) P (λ i → ε2 (W n) n)
+
+
+    
