@@ -193,5 +193,19 @@ module SDG.KockLawvere.Base where
     factCoeff (suc n) p = factCoeff n (d/dε n p)
 
     d/dx : (n : ℕ)(f : ⟨ A ⟩ → ⟨ A ⟩) → ⟨ A ⟩ → ⟨ A ⟩
-    d/dx n f a = factCoeff n (invMAP n A λ d → ((snd A) CommAlgebraStr.+ a) (fromZeroLocus₁ 1 (var-power n) A d zero)) 
-   
+    d/dx n f a = factCoeff n (invMAP n A λ d → f (((snd A) CommAlgebraStr.+ a) (fromZeroLocus₁ 1 (var-power n) A d zero))) --((snd A) CommAlgebraStr.+ a) (fromZeroLocus₁ 1 (var-power n) A d zero)) 
+    
+    open import Cubical.Data.Bool
+
+    ∂/∂x : (n k : ℕ) → Fin n → (⟨ A^ n ⟩ → ⟨ A ⟩) → ⟨ A^ n ⟩ → ⟨ A ⟩
+    ∂/∂x n k j f v = factCoeff k (invMAP k A (λ d → f (λ i → if reclift n i == j then ((snd A) CommAlgebraStr.+ (v i)) (fromZeroLocus₁ 1 (var-power k) A d zero) else v i))) --d/dx 1 (λ x → f (λ i → if (i == k) then x else (v i)))
+
+    anODE : Type ℓ
+    anODE = Σ (⟨ A ⟩ → ⟨ A ⟩) λ f → (x : ⟨ A ⟩) → (d/dx 1 f x) ≡ x
+
+    -- sol : anODE 
+    -- sol = (λ _ → 0a) , λ x → d/dx 1 (λ _ → 0a) x ≡⟨ refl ⟩ 
+    --                          factCoeff 1 (invMAP 1 A (λ d → 0a)) ≡⟨ refl ⟩ 
+    --                          evPoly2 zero A (d/dε 0 (invMAP 1 A (λ d → 0a))) (λ x₁ → 0d A zero) ≡⟨ {!   !} ⟩ 
+    --                          {!   !} ≡⟨ {!   !} ⟩
+    --                          {!   !} ∎

@@ -12,6 +12,7 @@ module SDG.Base where
   open import Cubical.Data.Nat renaming (_·_ to _·ℕ_ ; _+_ to _+ℕ_; _^_ to _^ℕ_)
   open import Cubical.Algebra.Ring.BigOps
   open import Cubical.Data.Fin.LehmerCode
+  open import Cubical.Algebra.CommAlgebra.Instances.Pointwise
 
   variable
     ℓ : Level
@@ -28,6 +29,15 @@ module SDG.Base where
     R[ξ] = CommAlgebra→CommRing A[ξ] 
     R→A : R → ⟨ A ⟩
     R→A a = const a
+
+    LFin : (n : ℕ) → Type ℓ
+    LFin n = Lift (Fin n)
+
+    reclift : (n : ℕ) → LFin n → Fin n
+    reclift n (lift i) = i
+
+    A^ : (n : ℕ) → CommAlgebra ℝ ℓ
+    A^ n = pointwiseAlgebra (LFin n) A
 
     _^a_ : fst A → ℕ → fst A
     x ^a zero = 1a
@@ -89,6 +99,7 @@ module SDG.Base where
 
     eps : (k : ℕ) (i : Fin 1) → ⟨ W k ⟩
     eps k i = generator 1 (var-power k) i
+
 
     
 

@@ -142,5 +142,8 @@ module SDG.Nilpotent.Base where
         helper1 = refl
 
     -- TO DO ::
+    -- 1 ::
     -- Show that every P : Polynomials 1 is a linear combination of a finite number of generators "exp-var zero n" in Polynomials n
     -- Show that evalPoly of P at x is a linear combination (induced by the previous one) of powers of x
+    -- 2 ::
+    -- Show that every element in W n is a linear combination of the generator powers ε^k
