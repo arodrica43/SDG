@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical --safe #-}
 
-module SDG.ISM.Base where
+module SDG.DifferentialCohesion.ISM.Base where
 
   open import Cubical.Foundations.Everything
   open import Cubical.Data.Nat
@@ -18,9 +18,9 @@ module SDG.ISM.Base where
   open import Cubical.Functions.Embedding
 
   open import SDG.Base
-  open import SDG.Nilpotent.Base
-  open import SDG.Infinitesimal.Base
-
+  open import SDG.Infinitesimals.Instances
+  open import SDG.WeilAlgebra.Instances
+  open import SDG.Infinitesimals.Base
   
   module ModalConnected (mod : Modality ℓ) where
 
@@ -143,14 +143,14 @@ module SDG.ISM.Base where
       (h : (x : A) → g (f x) ≡ x)
        → Iso {ℓ} {ℓ} (◯ A) ∗
     RetrNullifierReflectsToUnitIso {A} f g h = iso (λ _ → tt*) 
-                         (λ x → fst (thm6 f g h)) 
+                         (λ x → fst (retrImplyIsConn f g h)) 
                          (λ b i → tt*) 
-                         λ a i → (snd (thm6 f g h)) a i
+                         λ a i → (snd (retrImplyIsConn f g h)) a i
       where
-        thm5/1 : isContr (◯ X)
-        thm5/1 = (Iso.fun (invIso nullifierReflectsToUnitIso) tt*) , Iso.leftInv nullifierReflectsToUnitIso
-        thm5 : ◯-isConnType X
-        thm5 = thm5/1
+        isContModalType : isContr (◯ X)
+        isContModalType = (Iso.fun (invIso nullifierReflectsToUnitIso) tt*) , Iso.leftInv nullifierReflectsToUnitIso
+        isModalConnType : ◯-isConnType X
+        isModalConnType = isContModalType
         ℑ-isConnectedRetract : {A : Type ℓ} {B : Type ℓ}
           (f : A → B) (g : B → A)
           (h : (x : A) → g (f x) ≡ x)
@@ -161,96 +161,19 @@ module SDG.ISM.Base where
                                       (◯-elim 
                                         (λ _ → ◯-=-isModal _ _) 
                                         λ x → cong η (h x))
-        thm6 : {A : Type ℓ}
+        retrImplyIsConn : {A : Type ℓ}
           (f : A → X) (g : X → A)
           (h : (x : A) → g (f x) ≡ x)
           → ◯-isConnType A
-        thm6 f g h = ℑ-isConnectedRetract f g h thm5
+        retrImplyIsConn f g h = ℑ-isConnectedRetract f g h isModalConnType
       
   module Monad (ℝ@(R , str) : CommRing ℓ) where
 
-    open Disk ℝ
+    open 1Disk ℝ
+    open BasicInstances ℝ
     ISM : Modality ℓ
-    ISM = NullModality DskOfOrder∞
+    ISM = NullModality (infDskOfOrder∞ A)
     ℑ = Modality.◯ ISM
     η = Modality.η ISM
     ℑ-rec = Modality.◯-rec ISM
     ℑ-Type = Modality.◯-Types ISM
-
-  module ℑProperties (ℝ@(R , str) : CommRing ℓ) where
-
-    open Disk ℝ
-    open Foundations ℝ
-    variable
-        n : ℕ
-    private
-      D = DskOfOrder∞
-      ι : D → R
-      ι = fst 
-    open NullProperties D
-    open CommRingStr str
-    _at_ = polynomialAt
-    infDispl : FinVec R n → D → R
-    infDispl p d = p at (ι d)
-    
-    infDisplIsNullified : (p q : FinVec R n) (a b : D) → η (p at 0r) ≡ η (q at 0r) →
-                          η (infDispl p a) ≡ η (infDispl q b) 
-    infDisplIsNullified p q a b sC = (ηinfDispl≡ηEvalAt0 p a ∙ sC ∙ sym (ηinfDispl≡ηEvalAt0 q a)) ∙ ηinfDisplConnImg q a b
-      where
-        ηinfDisplConnImg : (p : FinVec R n) → (a b : D) → η (infDispl p a) ≡ η (infDispl p b)
-        ηinfDisplConnImg p a b = precompByηContrImg (infDispl p) a b
-          where
-            precompByηContrImg : {X : Type ℓ}(f : D → X) (x y : D) → η (f x) ≡ η (f y)
-            precompByηContrImg f x y = imageFromNullifierContr (η ∘ f) x y
-        ηinfDispl≡ηEvalAt0 : (p : FinVec R n)(a : D) → η (infDispl p a) ≡ η (p at 0r)
-        ηinfDispl≡ηEvalAt0 p a = (ηinfDisplConnImg p a 0D) ∙ cong η refl
-
-  module NullDisk2 (ℝ@(R , str) : CommRing ℓ) where
-    
-    open Disk ℝ
-    private
-      D = bigDskOfOrder∞
-      D2 = DskOfOrder 1
-      ι : D → R
-      ι = fst 
-      ∗ = Unit*
-    open NullProperties D
-
-    ℑkillSpecOfDualNumbers-step1 : Iso {ℓ} {ℓ} (Modality.◯ mod D2) ∗
-    ℑkillSpecOfDualNumbers-step1 = RetrNullifierReflectsToUnitIso (incl 1) (retr 1) isRetrRetr
-
-  module ISMExperimental (ℝ@(R , str) : CommRing ℓ)(A : CommAlgebra ℝ ℓ) where
-    
-    open Foundations ℝ renaming (A to R[⊥])
-    open InfExperimental ℝ -- n-disk → ∞-disk
-    open NullProperties (infDskOfOrder∞ A) -- Nullification at the ∞-disk
-
-    private
-      ∗ = Unit*
-
-    -- open prova 3
-    -- ℑKillDisksOfAnyOrder : (n : ℕ) → Iso {ℓ} {ℓ} (◯ (infDskOfOrder A k)) ∗
-    -- ℑKillDisksOfAnyOrder n = RetrNullifierReflectsToUnitIso (incl A k) (retr A k) (isRetrRetr A)
-
-    -- Final Theorem 1 :: Nullification at infDiskOfOrder∞ nullifies all infDsisksOfOrder n
-    ℑKillDisksOfAnyOrder : (n : ℕ) → Iso {ℓ} {ℓ} (◯ (infDskOfOrder A n)) ∗
-    ℑKillDisksOfAnyOrder n = RetrNullifierReflectsToUnitIso (incl A n) (retr A n) (isRetrRetrG n A)
-
-   
-
-    Spec : (X : CommAlgebra ℝ ℓ) → Type ℓ
-    Spec X = CommAlgebraHom X A 
-
-    -- Final Theorem 2 :: ℑ Kills Fundamental FPNAs
-    ℑKill1DFundFPNAs : (n : ℕ) → Iso (◯ (Spec (W n))) ∗
-    ℑKill1DFundFPNAs n = compIso (ℑhelperIso n) (ℑKillDisksOfAnyOrder n)
-      where
-        -- Helper Lemma :: ℑ preserves FPHomIso, via equivalences
-        ℑhelperIso : (n : ℕ) → Iso (◯ (Spec (W n)))  (◯ (infDskOfOrder A n))
-        ℑhelperIso n = equivToIso (◯-map (fst (isoToEquiv (FPHomIso 1 (var-power n)))) , 
-                                        (◯-preservesEquiv (fst (isoToEquiv (FPHomIso 1 (var-power n)))) 
-                                                            (snd (isoToEquiv (FPHomIso 1 (var-power n))))))
-
-
-    
- 
