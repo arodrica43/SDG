@@ -182,7 +182,7 @@ module SDG.Base where
       where
         helper : expξ {1} zero 0 ≡ Construction.1a ℝ
         helper = refl
-    evPolyChar : (A : CommAlgebra ℝ ℓ) →(n : ℕ) → (v : FinVec ⟨ A ⟩ 1) → evPoly A (gen n) v ≡ exp A (v zero) n
+    evPolyChar : (A : CommAlgebra ℝ ℓ) → (n : ℕ) → (v : FinVec ⟨ A ⟩ 1) → evPoly A (gen n) v ≡ exp A (v zero) n
     evPolyChar A zero = evPolyChar0 A
     evPolyChar A (suc n) v = evPoly A (gen (suc n)) v                                                       ≡⟨ cong (λ P → evPoly A P v) helper1 ⟩ 
                              evPoly A ((ξ zero) Construction.· (gen n)) v                                   ≡⟨ IsAlgebraHom.pres· (snd (freeInducedHom A v)) (ξ zero) (gen n) ⟩ 
@@ -285,4 +285,4 @@ module SDG.Base where
 
 
 
-  
+   
