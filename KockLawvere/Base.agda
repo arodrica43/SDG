@@ -32,7 +32,7 @@ module SDG.KockLawvere.Base where
 
     open BasicInstances ℝ
     open 1DFundamentalWeilAlgebras ℝ
-    open AlgebraSpectrum ℝ A
+    open AlgebraSpectrum ℝ
 
     canonicalMap : (n : ℕ) → ⟨ W n ⟩ → (Spec (W n) → ⟨ A ⟩ )
     canonicalMap n p d = fst d p

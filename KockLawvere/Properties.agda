@@ -36,7 +36,7 @@ module SDG.KockLawvere.Properties where
     open FreeCommAlgebraUtils ℝ
     open 1DFreeCommAlgebraUtils ℝ
     open 1DFundamentalWeilAlgebras ℝ
-    open AlgebraSpectrum ℝ A
+    open AlgebraSpectrum ℝ
     open Axiom ℝ
     open Construction ℝ
     
@@ -89,26 +89,38 @@ module SDG.KockLawvere.Properties where
     factCoeff zero p = evPolyInfinitesimal zero A p (λ x → 0d A zero)
     factCoeff (suc n) p = factCoeff n (d/dε n p)
 
-    d/dx : (n : ℕ)(f : ⟨ A ⟩ → ⟨ A ⟩) → ⟨ A ⟩ → ⟨ A ⟩
-    d/dx n f a = factCoeff n 
-                           (canonicalInv n 
-                                λ d → f (((snd A) CommAlgebraStr.+ a) (fromZeroLocus₁ 1 (var-power n) A (FPIso d) zero))) 
+    private
+      D : ℕ → Type ℓ
+      D n = Spec (W n)
+
+    approx1D :  (n : ℕ) → (f : ⟨ A ⟩ → ⟨ A ⟩)(x : ⟨ A ⟩) → D n → ⟨ A ⟩
+    approx1D n f a = λ d → f (((snd A) CommAlgebraStr.+ a) (fromZeroLocus₁ 1 (var-power n) A (FPIso d) zero))
       where
-        FPIso = Iso.fun (FPHomIso 1 (var-power n))
+        FPIso = Iso.fun (FPHomIso  1 (var-power n))
+
+    Taylor : (n : ℕ) → (f : ⟨ A ⟩ → ⟨ A ⟩)(x : ⟨ A ⟩) → ⟨ W n ⟩
+    Taylor n f a = canonicalInv n (approx1D n f a)
+
+    d/dx : (n : ℕ) → (f : ⟨ A ⟩ → ⟨ A ⟩) → ⟨ A ⟩ → ⟨ A ⟩
+    d/dx n f a = factCoeff n (Taylor n f a)
+
+
     open import Cubical.Data.Bool
 
-    ∂/∂x : (n k : ℕ) → Fin n → (⟨ A^ n ⟩ → ⟨ A ⟩) → ⟨ A^ n ⟩ → ⟨ A ⟩
-    ∂/∂x n k j f v = factCoeff k 
-                               (canonicalInv k 
-                                             (λ d → 
-                                                f (λ i → 
-                                                        if reclift n i == j 
-                                                        then 
-                                                            ((snd A) CommAlgebraStr.+ (v i)) (fromZeroLocus₁ 1 (var-power k) A (FPIso d) zero) 
-                                                        else v i)))
+    approxND : (n k : ℕ) → Fin n → (⟨ A^ n ⟩ → ⟨ A ⟩) → ⟨ A^ n ⟩ → D k → ⟨ A ⟩
+    approxND n k j f v = λ d → f (λ i → 
+                                        if reclift n i == j 
+                                        then 
+                                            ((snd A) CommAlgebraStr.+ (v i)) (fromZeroLocus₁ 1 (var-power k) A (FPIso d) zero) 
+                                        else v i)
       where
         FPIso = Iso.fun (FPHomIso 1 (var-power k))
         reclift : (n : ℕ) → Lift (Fin n) → Fin n
         reclift n (lift i) = i
-    anODE : Type ℓ
-    anODE = Σ (⟨ A ⟩ → ⟨ A ⟩) λ f → (x : ⟨ A ⟩) → (d/dx 1 f x) ≡ x
+    
+
+    ∂/∂x : (n k : ℕ) → Fin n → (⟨ A^ n ⟩ → ⟨ A ⟩) → ⟨ A^ n ⟩ → ⟨ A ⟩
+    ∂/∂x n k j f v = factCoeff k (canonicalInv k (approxND n k j f v))
+    
+    -- T : (f : ⟨ A ⟩ → ⟨ A ⟩)(a : ⟨ A ⟩) → Type ℓ
+    -- T f a = Σ[ y ∈ ⟨ A ⟩ ] {!   !} 

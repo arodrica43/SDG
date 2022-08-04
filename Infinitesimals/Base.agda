@@ -28,13 +28,22 @@ module SDG.Infinitesimals.Base where
   open import Cubical.Algebra.CommRingSolver.Utility
 
   open import SDG.Base
+  open import SDG.WeilAlgebra.Base
 
   module RingSpectrum (ℝ@(R , str) : CommRing ℓ) where
 
     Spec : (A : CommRing ℓ) → Type ℓ
     Spec A = CommRingHom A ℝ
 
-  module AlgebraSpectrum (ℝ@(R , str) : CommRing ℓ) (ℝAlg@(A , strA) : CommAlgebra ℝ ℓ) where
+  module AlgebraSpectrum (ℝ@(R , str) : CommRing ℓ) where
 
-    Spec : (A : CommAlgebra ℝ ℓ) → Type ℓ
-    Spec A = CommAlgebraHom A ℝAlg
+    open BasicInstances ℝ
+    Spec : (X : CommAlgebra ℝ ℓ) → Type ℓ
+    Spec X = CommAlgebraHom X A
+
+  module InfinitesimalType (ℝ@(R , str) : CommRing ℓ) where
+
+    open AlgebraSpectrum ℝ
+    open WeilAlgebraDef ℝ
+    InfType : Type (ℓ-suc ℓ)
+    InfType = Σ[ X ∈ Type ℓ ] Σ[ W ∈ WeilAlgebra ] Iso X (Spec (W .fst .fst))

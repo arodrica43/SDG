@@ -11,11 +11,8 @@ module SDG.DifferentialCohesion.ISM.Base where
   open import Cubical.Modalities.Modality
   open import Cubical.Foundations.Equiv.PathSplit
   
-  open import Cubical.HITs.Localization renaming (rec to Lrec)
   open import Cubical.HITs.Nullification renaming (elim to elim-Null ; rec to Nrec)
-  open import Cubical.Data.Unit
-  open import Cubical.Data.Empty
-  open import Cubical.Functions.Embedding
+
 
   open import SDG.Base
   open import SDG.Infinitesimals.Instances
@@ -35,18 +32,26 @@ module SDG.DifferentialCohesion.ISM.Base where
   module NullProperties (X : Type ℓ) where
 
     private
-      ∗ = Unit*
+      ∗ = Unit* {ℓ}
 
     mod = NullModality X
     open Modality mod public
-    open ModalConnected mod
+    open ModalConnected mod public
 
     ◯A≃X→◯A : {A : Type ℓ} → Iso (◯ A) (X → ◯ A)
-    ◯A≃X→◯A {A} = toIso (const {A = ◯ A} {B = X}) isNull-Null 
+    ◯A≃X→◯A {A} = toIso (const {A = ◯ A} {B = X}) ◯-isModal
     constMapsEquivIso : (A : ◯-Types) → Iso (fst A) (X → (fst A))
     constMapsEquivIso A = toIso (const {A = fst A} {B = X}) (snd A)
     ◯X≃X→◯X : Iso (◯ X) (X → ◯ X)
-    ◯X≃X→◯X = toIso (const {A = ◯ X} {B = X}) ◯-isModal
+    ◯X≃X→◯X = ◯A≃X→◯A {X}
+
+    -- Properties of ∗
+    ∗-isModal : isModal ∗
+    ∗-isModal = record { sec = (λ _ → tt*) , λ b i x → tt* ; 
+                         secCong = λ x y → (λ z i → tt*) , λ b i i₁ x₁ → tt* }
+    ∗-iso-ℑ∗ : Iso ∗ (◯ ∗)
+    ∗-iso-ℑ∗ = isModalToIso ∗-isModal
+
 
     -- the image of every map (S → Null S A) is contractible in Null S A,
     -- so the image of every map (Dsk → ℑ A) is contractible in ℑ A,
@@ -64,13 +69,7 @@ module SDG.DifferentialCohesion.ISM.Base where
     ηContrImg≡ : {x y : X} → (p : X → η x ≡ η y) → (s r : X) 
                               → ηPath x y s ≡ ηPath x y r
     ηContrImg≡ {x = x} {y = y} p s r = imageFromNullifierContr≡ (λ x₁ i → ηContrImg x y i) s r
-
-     -- Properties of ∗
-    ∗-isModal : isModal ∗
-    ∗-isModal = record { sec = (λ _ → tt*) , λ b i x → tt* ; 
-                         secCong = λ x y → (λ z i → tt*) , λ b i i₁ x₁ → tt* }
-    ∗-iso-ℑ∗ : Iso ∗ (◯ ∗)
-    ∗-iso-ℑ∗ = isModalToIso ∗-isModal
+    -- 
 
     sectOfPrecomp→isModalConn : {A B : Type ℓ}{f : A → B} → ((P : B → ◯-Types)
                                 → hasSection (λ(s : (b : B) → P b .fst) → s ∘ f))
@@ -80,8 +79,7 @@ module SDG.DifferentialCohesion.ISM.Base where
             c : ((P : B → ◯-Types)
                 → hasSection (λ(s : (b : B) → P b .fst) → s ∘ f)) → (b : B)
                 → ◯ (fiber f b)
-            c s = (s λ b → (◯ (fiber f b) , Modality.◯-isModal mod)) .fst
-              λ a → η (a , refl)
+            c s = fst (s λ b → (◯ (fiber f b) , Modality.◯-isModal mod)) λ a → η (a , refl)
             fun : (P→sect : ((P : B → ◯-Types)
                     → hasSection λ(s : (b : B) → P b .fst) → s ∘ f))
                     → (b : B) (w : (◯ (fiber f b)))
@@ -125,18 +123,26 @@ module SDG.DifferentialCohesion.ISM.Base where
                                           (λ x → ◯-=-isModal _ _)
                                           backSection
 
+    
+    constMapsIso : (A : ◯-Types) → Iso (∗  → (fst A)) (fst A)
+    constMapsIso A =  iso (λ x → x tt*) (λ x x₁ → x) (λ b i → b) λ a i x → a tt*
+    nullifierActsAsUnitIso :  (A : ◯-Types) → Iso (∗ → (fst A)) (X → (fst A))
+    nullifierActsAsUnitIso A = compIso (constMapsIso A) (constMapsEquivIso A)
+    constMapsIsEquiv :  (A : ◯-Types) → isEquiv (λ x _ → x tt*)
+    constMapsIsEquiv A = isoToIsEquiv (nullifierActsAsUnitIso A)
+    modalTypesHaveSect : (A : ∗ → ◯-Types) → hasSection (λ x _ → x tt*)
+    modalTypesHaveSect A = isEquiv→hasSection (constMapsIsEquiv (A tt*))
     nullifierReflectsToUnitIso : Iso (◯ X) ∗
     nullifierReflectsToUnitIso = compIso (◯-connectedTruncIso (sectOfPrecomp→isModalConn modalTypesHaveSect)) 
                   (invIso (∗-iso-ℑ∗))  
-      where
-        constMapsIso : (A : ◯-Types) → Iso (∗ → (fst A)) (fst A)
-        constMapsIso A =  iso (λ x → x tt*) (λ x x₁ → x) (λ b i → b) λ a i x → a tt*
-        nullifierActsAsUnitIso :  (A : ◯-Types) → Iso (∗ → (fst A)) (X → (fst A))
-        nullifierActsAsUnitIso A = compIso (constMapsIso A) (constMapsEquivIso A)
-        constMapsIsEquiv :  (A : ◯-Types) → isEquiv (λ x _ → x tt*)
-        constMapsIsEquiv A = isoToIsEquiv (nullifierActsAsUnitIso A)
-        modalTypesHaveSect : (A : ∗ → ◯-Types) → hasSection (λ x _ → x tt*)
-        modalTypesHaveSect A = isEquiv→hasSection (constMapsIsEquiv (A tt*))
+    
+    nullifierReflectsToUnitIsoPath : (◯ X) ≡ ∗
+    nullifierReflectsToUnitIsoPath = isoToPath (nullifierReflectsToUnitIso)
+    isContModalType : isContr (◯ X)
+    isContModalType = (Iso.fun (invIso nullifierReflectsToUnitIso) tt*) , Iso.leftInv nullifierReflectsToUnitIso
+    -- property1 : (A B : Type ℓ) (f : A → B)(y : B) → ◯ (fiber f y) → isContr (◯ A) → isContr (◯ (fiber f y))
+    -- property1 A B f y p isContr◯A = p , λ z → {!   !}
+
 
     RetrNullifierReflectsToUnitIso : {A : Type ℓ}
       (f : A → X) (g : X → A)
@@ -147,8 +153,6 @@ module SDG.DifferentialCohesion.ISM.Base where
                          (λ b i → tt*) 
                          λ a i → (snd (retrImplyIsConn f g h)) a i
       where
-        isContModalType : isContr (◯ X)
-        isContModalType = (Iso.fun (invIso nullifierReflectsToUnitIso) tt*) , Iso.leftInv nullifierReflectsToUnitIso
         isModalConnType : ◯-isConnType X
         isModalConnType = isContModalType
         ℑ-isConnectedRetract : {A : Type ℓ} {B : Type ℓ}
@@ -176,4 +180,4 @@ module SDG.DifferentialCohesion.ISM.Base where
     ℑ = Modality.◯ ISM
     η = Modality.η ISM
     ℑ-rec = Modality.◯-rec ISM
-    ℑ-Type = Modality.◯-Types ISM
+    ℑ-Type = Modality.◯-Types ISM  

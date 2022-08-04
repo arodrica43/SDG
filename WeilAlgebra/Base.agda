@@ -22,9 +22,8 @@ module SDG.WeilAlgebra.Base where
   open import SDG.WeilAlgebra.Instances
   open import SDG.Infinitesimals.Instances
 
-  module Definition (baseRing : CommRing ℓ) where
 
-    module _ (ℝ@(R , str) : CommRing ℓ) (n : ℕ) where
+  module WeilAlgebraDef (ℝ@(R , str) : CommRing ℓ) where
     
     -- We can consider that a Weil algebra is merely equivalent to an algebra of the form 
     -- ℝ[I]/(FGIdeal), with augmentation xᵢ → 0.
@@ -41,7 +40,8 @@ module SDG.WeilAlgebra.Base where
       augIdealIsFGIdeal X = ∥ isFGIdeal (fst X) (augmentationIdeal X) ∥₁
       isWeilAlgebra : (X : augmentedCommAlgebra) → Type (ℓ-suc ℓ)
       isWeilAlgebra X = (augIdealIsNilpotent X) × (augIdealIsFGIdeal X)
-      
+      WeilAlgebra : Type (ℓ-suc ℓ)
+      WeilAlgebra = Σ augmentedCommAlgebra (λ X → isWeilAlgebra X)
       
       open 1Disk ℝ
       open 1DFundamentalWeilAlgebras ℝ

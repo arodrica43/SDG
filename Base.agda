@@ -27,7 +27,7 @@ module SDG.Base where
     ℓ : Level
 
   module GeneralUtils {ℓ : Level} where
-    
+  
     LFin : (n : ℕ) → Type ℓ
     LFin n = Lift (Fin n)
 
@@ -186,8 +186,8 @@ module SDG.Base where
     evPolyChar A zero = evPolyChar0 A
     evPolyChar A (suc n) v = evPoly A (gen (suc n)) v                                                       ≡⟨ cong (λ P → evPoly A P v) helper1 ⟩ 
                              evPoly A ((ξ zero) Construction.· (gen n)) v                                   ≡⟨ IsAlgebraHom.pres· (snd (freeInducedHom A v)) (ξ zero) (gen n) ⟩ 
-                             ((snd A) CommAlgebraStr.· evPoly A ( ξ {1} zero) v) (evPoly A (gen n) v)  ≡⟨ refl ⟩ 
-                             ((snd A) CommAlgebraStr.· (v zero)) (evPoly A (gen n) v)                                 ≡⟨ cong (λ a → ((snd A) CommAlgebraStr.· (v zero)) a) (evPolyChar A n v) ⟩ 
+                             ((snd A) CommAlgebraStr.· evPoly A ( ξ {1} zero) v) (evPoly A (gen n) v)       ≡⟨ refl ⟩ 
+                             ((snd A) CommAlgebraStr.· (v zero)) (evPoly A (gen n) v)                       ≡⟨ cong (λ a → ((snd A) CommAlgebraStr.· (v zero)) a) (evPolyChar A n v) ⟩ 
                              exp A (v zero) (suc n) ∎
       where
         helper1 : expξ {1} zero (suc n) ≡ ((ξ zero) Construction.· (gen n))
@@ -281,8 +281,3 @@ module SDG.Base where
     
     derivPowerRuleVar : (n : ℕ) → d/dξ (var-power n zero) ≡ (embedℕinAlg A[ξ] (suc n)) · ((exp A[ξ] (ξ zero) n) · (d/dξ (ξ zero)))
     derivPowerRuleVar n = derivPowerRule n (ξ zero)
-
-
-
-
-   
