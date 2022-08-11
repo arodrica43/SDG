@@ -74,7 +74,13 @@ module SDG.DifferentialCohesion.ISM.Properties where
     ℑKillDisksOfAnyOrder : (n : ℕ) → Iso {ℓ} {ℓ} (◯ (infDskOfOrder A n)) ∗
     ℑKillDisksOfAnyOrder n = RetrNullifierReflectsToUnitIso (incl A n) (retr A n) (isRetrRetr n A)    
 
-    -- Final Theorem 2 :: ℑ Kills Fundamental FPNAs
+    ℑKillDisksOfAnyOrderMaps : (n : ℕ)(X : Type ℓ)  → Iso {ℓ} {ℓ} (◯ (infDskOfOrder A n) → X) (∗ → X)
+    Iso.fun (ℑKillDisksOfAnyOrderMaps n X) = λ x x₁ → x (Iso.inv (ℑKillDisksOfAnyOrder n) tt*)
+    Iso.inv (ℑKillDisksOfAnyOrderMaps n X) = λ x x₁ → x (Iso.fun (ℑKillDisksOfAnyOrder n) (η (0d A n)))
+    Iso.rightInv (ℑKillDisksOfAnyOrderMaps n X) = λ b → funExt (λ x → cong (λ z → b z) (Iso.rightInv (ℑKillDisksOfAnyOrder n) x))
+    Iso.leftInv (ℑKillDisksOfAnyOrderMaps n X) = λ a → funExt (λ x → cong (λ z → a z) (Iso.leftInv (ℑKillDisksOfAnyOrder n) x))
+
+    -- Final Theorem 2 :: ℑ Kills Fundamental FPNAs Specs
     ℑKill1DFundFPNAs : (n : ℕ) → Iso (◯ (Spec (W n))) ∗
     ℑKill1DFundFPNAs n = compIso (ℑhelperIso n) (ℑKillDisksOfAnyOrder n)
       where
@@ -137,8 +143,19 @@ module SDG.DifferentialCohesion.ISM.Properties where
     incl2 : (n : ℕ) → D[ n ] → D
     incl2 n d = e (incl A n d)
 
-    -- retr2 : (n : ℕ) → D → D[ n ]
-    -- retr2 n (m , d) = {!   !}
+    -- N : (n : ℕ)(X : ◯-Types)(g : D[ n ] → ⟨ X ⟩)(x : D[ n ]) → g x ≡ g (0d A n)
+    -- N n X g x = 
+    
+    exp1 : (n : ℕ) → (Σ[ d ∈ FinVec ⟨ A ⟩ 1 ] ∥ ((i : Fin 1) → (evPoly A (var-power n i) d) ≡ CommAlgebraStr.0a (snd A)) ∥₁) → D[ n ]
+    exp1 n p = (fst p) , λ i → Prec (isSetCommAlgebra A (evPoly A (var-power n i) (fst p)) (CommAlgebraStr.0a (snd A))) (λ H → H i) (snd p) --(Prec (isProp→ ?) {!   !} (snd p))
+    -- exp2 : (n : ℕ) → D → (Σ[ d ∈ FinVec ⟨ A ⟩ 1 ] ∥ ((i : Fin 1) → (evPoly A (var-power n i) d) ≡ CommAlgebraStr.0a (snd A)) ∥₁)
+    -- exp2 n d = (fst d) , (Prec isPropPropTrunc help (snd d))
+    --   where
+    --     help : Σ[ k ∈ ℕ ] ((i : Fin 1) → evPoly A (var-power k i) (fst d) ≡ CommAlgebraStr.0a (snd A)) → ∥ ((i : Fin 1) → evPoly A (var-power n i) (fst d) ≡ CommAlgebraStr.0a (snd A)) ∥₁
+    --     help z with discreteℕ (fst z) k= {!   !}
+    
+    --retr2 : (n : ℕ) → D → D[ n ]
+    --retr2 n (m , d) = {!   !}
 
     -- DIso : (X : ◯-Types) → Iso (D → ⟨ X ⟩) (∗ → ⟨ X ⟩)
     -- Iso.fun (DIso X) = λ f _ → f 0D
@@ -300,4 +317,4 @@ module SDG.DifferentialCohesion.ISM.Properties where
     -- --     ret d = d , {!   !}
     --   -- where
     --   --   step1 :  {!   !}
-    --   --   step1 d = {!   !}               
+    --   --   step1 d = {!   !}                  

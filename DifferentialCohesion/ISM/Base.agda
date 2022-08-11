@@ -95,7 +95,7 @@ module SDG.DifferentialCohesion.ISM.Base where
     ◯-connectedTruncIso {A} {B} {f} con = g
       where
         back : B → ◯ A
-        back y = ◯-map fst ((con y) .fst)
+        back y = ◯-map fst (con y .fst)
         backSection : (b : B) → Path  (◯ B) 
                                       (◯-rec 
                                         ◯-isModal 
